@@ -31,7 +31,7 @@ struct CharacterController {
 	CharacterController(int _arbitrary){ arbitrary=_arbitrary; }
 };
 //////////////////////////////////////////
-          
+
 int main() {
 	constexpr int width = 960;
 	constexpr int height = 540;
@@ -57,34 +57,33 @@ int main() {
 		
 		// temporary placeholder store "view" system made by ChatGPT
 		world.for_each<Position, Graphics>([](ecs::Entity entity, Position& pos, Graphics& spr) { // draw system
-			tgl::draw_square(pos.x, pos.y, spr.size, spr.color);
+			tgl::draw_square(static_cast<int>(pos.x), static_cast<int>(pos.y), spr.size, spr.color);
 		});
 		world.for_each<Position, Velocity>([](ecs::Entity entity, Position& pos, Velocity& vel) { // velocity system
-			if (vel.vel >= 0.0f) {
-				vel.vel -= 0.0001f;
-			}
+			if (vel.vel >= 0.0f) { vel.vel -= 0.0001f; }
 			else { vel.vel = 0.0f; }
 			
 			pos.x += vel.dirX * vel.vel;
 			pos.y += vel.dirY * vel.vel;
 		});
 		world.for_each<CharacterController, Velocity>([](ecs::Entity entity, CharacterController& ctrl, Velocity& vel) {
-			if(GetAsyncKeyState('Z') & 0x8000) { /*Check if high-order bit is set (1 << 15)*/
-				vel.dirY = -1.0f;
-				vel.vel = 0.1f;
-			}
-			else if (GetAsyncKeyState('S') & 0x8000) {
-				vel.dirY = 1.0f;
-				vel.vel = 0.1f;
-			}
-			if(GetAsyncKeyState('D') & 0x8000) { /*Check if high-order bit is set (1 << 15)*/
-				vel.dirX = 1.0f;
-				vel.vel = 0.1f;
-			}
-			else if (GetAsyncKeyState('Q') & 0x8000) {
-				vel.dirX = -1.0f;
-				vel.vel = 0.1f;
-			}
+			const bool forward = tgl::is_pressed('Z');
+			const bool backward = tgl::is_pressed('S');
+			const bool left = tgl::is_pressed('Q');
+			const bool right = tgl::is_pressed('D');
+			
+			const bool horizontal = left || right;
+			const bool vertical = forward || backward;
+			
+			const bool moved = horizontal || vertical;
+			
+			vel.dirY = forward ? -1.0f : backward ? 1.0f : vel.dirY;
+			vel.dirX = right ? 1.0f : left ? -1.0f : vel.dirX;
+			
+			if (vertical) {vel.dirX = 0.0f; }
+			if (horizontal) {vel.dirY = 0.0f; }
+			
+			if (moved) {vel.vel = 0.1f;}
 		});
 		
 		tgl::end_frame();

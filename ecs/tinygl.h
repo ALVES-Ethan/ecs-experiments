@@ -93,5 +93,9 @@ inline void shutdown() {
     DeleteDC(back_dc);
     DestroyWindow(hwnd);
 }
+    
+inline bool is_pressed(char key) {
+    return (GetAsyncKeyState(key) & 0x8000);
+}
 
 } // namespace tgl
