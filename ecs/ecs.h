@@ -12,7 +12,7 @@
 class ecs {
 public:
     using Entity = uint32_t; // will probably change this later
-    constexpr Entity INVALID_ENTITY = 0;
+    const Entity INVALID_ENTITY = 0;
     
     struct IComponentPool {
         virtual ~IComponentPool() = default;

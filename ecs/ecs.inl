@@ -6,11 +6,7 @@ template <typename T>
 void ecs::register_component() {
     std::type_index type = typeid(T);
     
-    bool already_registered = false; // kinda funky, need to replace, why is map.contains only on std::20 :(
-    for (auto it = m_pools.begin(); it != m_pools.end(); ++it)
-        {if (it->first == type) { already_registered = true; break;} }
-
-    assert(!already_registered);
+    assert(!m_pools.contains(type));
 
     m_pools[type] = std::make_unique<ComponentPool<T>>();
 }
