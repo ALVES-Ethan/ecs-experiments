@@ -1,54 +1,44 @@
 #pragma once
 
-#include <cassert>
-
-#include <unordered_map>
-#include <typeindex>
 #include <memory>
-#include <vector>
+#include <array>
+#include <cstdint>
 
-// you like my c-style convos :) ?
+constexpr uint8_t MAX_COMPONENT_TYPE_COUNT = 32;
 
-class ecs {
+class final ecs {
 public:
-    using Entity = uint32_t; // will probably change this later
-    const Entity INVALID_ENTITY = 0;
+    using entity = uint32_t;
     
-    struct IComponentPool {
-        virtual ~IComponentPool() = default;
+    struct store_base {
+        virtual ~store_base() = default;
     };
 
-    template<typename T>
-    struct ComponentPool : IComponentPool {
-        std::vector<T> components;
-        std::vector<Entity> entities;
-        std::unordered_map<Entity, size_t> index;
+    template<typename T, uint32_t MAX_STORE_CAPACITY = 4096>
+    struct component_store : store_base {
+        std::array<entity, MAX_STORE_CAPACITY> entities;
+        std::array<size_t, MAX_STORE_CAPACITY> sparse;
+        std::array<T, MAX_STORE_CAPACITY> dense;
+        size_t size = 0;
+        
+        static constexpr size_t invalid = MAX_STORE_CAPACITY;
+        
+        component_store() {
+            sparse.fill(invalid);
+        }
     };
     
     template<typename T>
-    void register_component(); // maybe replace with implicit registering when adding/removing components, or trying to get a pool ?
-    template<typename T>
-    ComponentPool<T>& get_pool();
-    
-    Entity create_entity();
-    void destroy_entity(Entity _entity);
-    template<typename T>
-    bool has_component(Entity _entity); // to do : move in an "Entity" struct, so it makes more sence for gameplay devs
-    
-    template<typename... Components, typename Func>
-    void for_each(Func&& fn); // this was generated (alongside impl of course) by ChatGPT, need to replace
+    component_store<T>& get_store();
+
+    entity create_entity();
     
     template<typename T, typename... Args>
-    T& add_component(Entity _entity, Args&&... _args);
+    T& add_component(entity _entity, Args&&... _args);
     template<typename T>
-    T& get_component(Entity _entity);
-    template<typename T>
-    void remove_component(Entity _entity);
-
-private:
-    Entity m_next_entity = 1; // used for unique entity id and stuff
-    std::vector<Entity> m_free_entities;
+    T& get_component(entity _entity);
     
-    std::unordered_map<std::type_index, std::unique_ptr<IComponentPool>> m_pools;
+private:
+    std::array<std::unique_ptr<store_base>, MAX_COMPONENT_TYPE_COUNT> m_pools;
 };
 #include "ecs.inl"

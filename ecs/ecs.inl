@@ -1,87 +1,50 @@
-﻿#include "ecs.h"
+﻿#pragma once
+#include "ecs.h"
 
 #pragma once
 
+#include <assert.h>
+
+#include "component.h"
+
 template <typename T>
-void ecs::register_component() {
-    std::type_index type = typeid(T);
+ecs::component_store<T>& ecs::get_store() {
+    auto id = component::get_id<T>(); // get the id of the component from its type (an id is an index in m_pools array)
     
-    assert(!m_pools.contains(type));
+    assert(id < m_pools.size()); // assert if there are more components type than the size of the array
+    
+    if (!m_pools[id]) { m_pools[id] = std::make_unique<component_store<T>>(); } // create a new pool if the component is not already registered
 
-    m_pools[type] = std::make_unique<ComponentPool<T>>();
+    return *static_cast<component_store<T>*>(m_pools[id].get()); // lookup the pool, and cast it before returning
 }
 
-template <typename T>
-bool ecs::has_component(Entity _entity) {
-    auto& pool = get_pool<T>();
-    return pool.index.contains(_entity);
+template<typename T, typename... Args>
+T& ecs::add_component(entity _entity, Args&&... _args) {
+    auto& store = get_store<T>();
+
+    assert(_entity < store.sparse.size()); // entity is not in bound (too many entities)
+    assert(store.sparse[_entity] == store.invalid); // entity already have a component of type T associated with it (allow only one component type per entity)
+    assert(store.size < store.dense.size()); // we already have too much data in the store (component overflow)
+
+    size_t index = store.size++; // new element is about to get added in the store
+
+    store.dense[index] = T(std::forward<Args>(_args)...); // construct a component with args
+    store.entities[index] = _entity; // set the index to the entity for fast entity lookup
+    store.sparse[_entity] = index; // set the sparse to the index for component lookup
+
+    return store.dense[index]; // return the constructed data
 }
 
-template <typename ... Components, typename Func>
-void ecs::for_each(Func&& fn) {  // this was generated (alongside decl of course) by ChatGPT, need to replace
-    // Use the first component as the driving pool
-    auto& primary = get_pool<std::tuple_element_t<0, std::tuple<Components...>>>();
+template<typename T>
+T& ecs::get_component(entity _entity) {
+    auto& store = get_store<T>();
 
-    for (size_t i = 0; i < primary.entities.size(); ++i) {
-        Entity e = primary.entities[i];
+    assert(_entity < store.sparse.size()); // entity is not in bound (invalid entity id or smf)
 
-        // Check if entity has all required components
-        if ((has_component<Components>(e) && ...)) {
-            fn(e, get_component<Components>(e)...);
-        }
-    }
-}
+    size_t index = store.sparse[_entity]; // get the index to lookup associated component
+    
+    assert(index != store.invalid); // this entity have no components in this store
+    assert(store.entities[index] == _entity); // there is a relation problem with the store
 
-template <typename T, typename... Args>
-T& ecs::add_component(Entity _entity, Args&&... _args) {
-    auto& pool = get_pool<T>();
-
-    assert(!pool.index.contains(_entity)); // only allow one component per entity as of right now (IDK it's just simpler to deal with)
-
-    size_t index = pool.components.size();
-
-    pool.components.emplace_back(std::forward<Args>(_args)...);
-    pool.entities.push_back(_entity);
-    pool.index[_entity] = index;
-
-    return pool.components.back();
-}
-
-template <typename T>
-T& ecs::get_component(Entity _entity) {
-    auto& pool = get_pool<T>();
-    auto it = pool.index.find(_entity);
-
-    assert(it != pool.index.end()); // entity does not have a component of this type
-
-    return pool.components[it->second];
-}
-
-template <typename T>
-void ecs::remove_component(Entity _entity) {
-    auto& pool = get_pool<T>();
-    auto it = pool.index.find(_entity);
-    assert(it != pool.index.end());
-
-    size_t index = it->second;
-    size_t last = pool.components.size() - 1;
-
-    // move last element into removed slot
-    pool.components[index] = std::move(pool.components[last]);
-    pool.entities[index] = pool.entities[last];
-    pool.index[pool.entities[index]] = index;
-
-    pool.components.pop_back();
-    pool.entities.pop_back();
-    pool.index.erase(_entity);
-}
-
-template <typename T>
-ecs::ComponentPool<T>& ecs::get_pool() {
-    auto key = std::type_index(typeid(T));
-
-    auto it = m_pools.find(key);
-    assert(it != m_pools.end()); // component not registered (no poll found)
-
-    return *static_cast<ComponentPool<T>*>(it->second.get());
+    return store.dense[index];
 }

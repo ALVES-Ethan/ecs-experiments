@@ -127,10 +127,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="component.cpp" />
     <ClCompile Include="ecs.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="component.h" />
+    <ClInclude Include="component.inl" />
     <ClInclude Include="ecs.h" />
     <ClInclude Include="ecs.inl" />
     <ClInclude Include="tinygl.h" />
