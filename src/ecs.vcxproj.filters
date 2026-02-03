@@ -5,12 +5,16 @@
     <ClCompile Include="engine\component.cpp" />
     <ClCompile Include="engine\ecs.cpp" />
     <ClCompile Include="benchmark.cpp" />
+    <ClCompile Include="benchmarks\ecs-benchmark.cpp" />
+    <ClCompile Include="benchmarks\oop-benchmark.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\component.h" />
     <ClInclude Include="engine\ecs.h" />
     <ClInclude Include="utils\profiler.h" />
     <ClInclude Include="benchmark.h" />
+    <ClInclude Include="benchmarks\ecs-benchmark.h" />
+    <ClInclude Include="benchmarks\oop-benchmark.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="engine\component.inl" />

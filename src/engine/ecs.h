@@ -14,7 +14,7 @@ public:
         virtual ~store_base() = default;
     };
 
-    template<typename T, uint32_t MAX_STORE_CAPACITY = 4096>
+    template<typename T, uint32_t MAX_STORE_CAPACITY = 4990>
     struct component_store : store_base {
         std::array<entity, MAX_STORE_CAPACITY> entities;
         std::array<size_t, MAX_STORE_CAPACITY> sparse;

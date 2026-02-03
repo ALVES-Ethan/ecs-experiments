@@ -1,6 +1,7 @@
-#include "benchmark.h"
+#include "benchmarks/oop-benchmark.h"
+#include "benchmarks/ecs-benchmark.h"
 
 int main() {
-    benchmark application;
+    ecs_benchmark application;
     return application.run();
 }
