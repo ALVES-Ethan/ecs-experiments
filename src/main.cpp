@@ -3,6 +3,6 @@
 #include "benchmarks/oop-benchmark.h"
 
 int main() {
-    ref_benchmark application;
+    ecs_benchmark application;
     return application.run();
 }

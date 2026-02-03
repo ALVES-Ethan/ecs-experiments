@@ -9,11 +9,12 @@ int ref_benchmark::run() {
     spawn_entities();
     spawn_player();
 
-    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "ecs");
+    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "ref");
     Camera2D cam = { 0 }; cam.zoom = 1.0f;
 
     while (!WindowShouldClose()) {
         Profiler::beginFrame();
+        PROFILE_SCOPE("frame_time");
 
         handle_player_inputs();
         compute_collisions();
@@ -21,7 +22,7 @@ int ref_benchmark::run() {
         BeginDrawing();
         ClearBackground(BLACK);
         BeginMode2D(cam);
-
+        
         draw_entities();
         draw_player();
 

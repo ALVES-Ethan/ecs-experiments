@@ -14,6 +14,7 @@ int ecs_benchmark::run() {
 
     while (!WindowShouldClose()) {
         Profiler::beginFrame();
+        PROFILE_SCOPE("frame_time");
 
         handle_player_inputs();
         compute_collisions();
