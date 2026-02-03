@@ -18,6 +18,13 @@ ecs::component_store<T>& ecs::get_store() {
     return *static_cast<component_store<T>*>(m_pools[id].get()); // lookup the pool, and cast it before returning
 }
 
+template <typename T>
+bool ecs::has_component(entity _entity) {
+    auto& store = get_store<T>(); // get the store of the specified component
+    
+    return (store.sparse[_entity] != store.invalid); // if the sparse contains a valid index at _entity, than we have this component
+}
+
 template<typename T, typename... Args>
 T& ecs::add_component(entity _entity, Args&&... _args) {
     auto& store = get_store<T>();
@@ -47,4 +54,18 @@ T& ecs::get_component(entity _entity) {
     assert(store.entities[index] == _entity); // there is a relation problem with the store
 
     return store.dense[index];
+}
+
+template <typename ... Components, typename Func>
+void ecs::for_each(Func&& fn) {
+    auto& store = get_store<std::tuple_element_t<0, std::tuple<Components...>>>(); // get the first component store in vaargs declaration order
+    
+    for (size_t i = 0; i < store.size; ++i) {
+        entity entity = store.entities[i];
+
+        // Check if entity has all required components
+        if ((has_component<Components>(entity) && ...)) {
+            fn(entity, get_component<Components>(entity)...);
+        }
+    }
 }

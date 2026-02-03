@@ -6,7 +6,7 @@
 
 constexpr uint8_t MAX_COMPONENT_TYPE_COUNT = 32;
 
-class final ecs {
+class ecs {
 public:
     using entity = uint32_t;
     
@@ -33,10 +33,15 @@ public:
 
     entity create_entity();
     
+    template<typename T>
+    bool has_component(entity _entity);
     template<typename T, typename... Args>
     T& add_component(entity _entity, Args&&... _args);
     template<typename T>
     T& get_component(entity _entity);
+    
+    template<typename... Components, typename Func>
+    void for_each(Func&& fn);
     
 private:
     std::array<std::unique_ptr<store_base>, MAX_COMPONENT_TYPE_COUNT> m_pools;
