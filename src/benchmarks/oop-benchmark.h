@@ -1,31 +1,46 @@
 #pragma once
 
-#include "../benchmark.h"
-
 #include <vector>
+#include <raylib.h>
 
-struct entity {
-    float x;
-    float y;
-    float radius;
-    Color color;
+class oop_entity {
+protected:
+	float x, y;
+
+	virtual void on_spawn() = 0;
+	virtual void on_update(float _dt) = 0;
+	virtual void on_destroy() = 0;
 };
 
-class oop_benchmark : public benchmark {
-public:
-    oop_benchmark();
+class oop_graphic_entity : public oop_entity {
+protected:
+	Color color;
+	float radius;
 
-    int run() override;
+	inline void on_update(float _dt) override {
+		DrawCircleLines(x, y, radius, color);
+	}
+};
+
+class oop_graphic_collision_entity : public oop_graphic_entity{
+	inline void on_update(float _dt) override {
+		oop_graphic_entity::on_update(_dt);
+
+	}
+};
+
+class oop_benchmark {
+public:
+	oop_benchmark();
 
 private:
-    void spawn_player();
-    void spawn_entities();
-    void compute_collisions();
-    void handle_player_inputs();
+	void spawn_player();
+	void spawn_entities();
+	void compute_collisions();
+	void handle_player_inputs();
 
-    void draw_player();
-    void draw_entities();
+	void draw_player();
+	void draw_entities();
 
-    entity m_player;
-    std::vector<entity> m_entities;
-};
+	std::vector<oop_entity> m_entities;
+}; 

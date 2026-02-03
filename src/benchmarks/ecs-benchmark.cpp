@@ -68,7 +68,7 @@ void ecs_benchmark::compute_collisions() {
     position& plp = m_ecs.get_component<position>(m_player);
     collider& plc = m_ecs.get_component<collider>(m_player);
     
-    m_ecs.for_each<position, collider, graphics>([plp, plc](ecs::entity _entity, position& _pos, collider& _col, graphics& _grp) {
+    m_ecs.for_each<collider, position, graphics>([plp, plc](ecs::entity _entity, collider& _col, position& _pos, graphics& _grp) {
             const float dx = _pos.x - plp.x;
             const float dy = _pos.y - plp.y;
             const float r = _col.radius + plc.radius;
