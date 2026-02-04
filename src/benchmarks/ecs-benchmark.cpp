@@ -3,24 +3,6 @@
 #define ENABLE_PROFILER
 #include "../utils/profiler.h"
 
-// TEMP //
-#include "rlgl.h"
-
-constexpr int CIRCLE_SEGMENTS = 16; // tweak for speed vs quality
-
-void draw_circle_outline(float cx, float cy, float r, Color c) {
-    rlColor4ub(c.r, c.g, c.b, c.a);
-
-    for (int i = 0; i < CIRCLE_SEGMENTS; i++) {
-        float a0 = (2 * PI * i) / CIRCLE_SEGMENTS;
-        float a1 = (2 * PI * (i + 1)) / CIRCLE_SEGMENTS;
-
-        rlVertex2f(cx + cosf(a0) * r, cy + sinf(a0) * r);
-        rlVertex2f(cx + cosf(a1) * r, cy + sinf(a1) * r);
-    }
-}
-//////////
-
 ecs_benchmark::ecs_benchmark() : m_ecs() {}
 
 int ecs_benchmark::run() {
@@ -41,8 +23,7 @@ int ecs_benchmark::run() {
         ClearBackground(BLACK);
         BeginMode2D(cam);
 
-        draw_entities();
-        //draw_player();
+        //draw_entities();
 
         EndMode2D();
         DrawFPS(10, 10);

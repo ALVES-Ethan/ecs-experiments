@@ -14,7 +14,7 @@ public:
         virtual ~store_base() = default;
     };
 
-    template<typename T, uint32_t MAX_STORE_CAPACITY = 4096*512>
+    template<typename T, uint32_t MAX_STORE_CAPACITY = 4097*4097>
     struct component_store : store_base {
         std::array<entity, MAX_STORE_CAPACITY> entities;
         std::array<size_t, MAX_STORE_CAPACITY> sparse;
@@ -40,7 +40,7 @@ public:
     template<typename T>
     T& get_component(entity _entity);
     
-    template<typename... Components, typename Func>
+    template<typename First, typename... Others, typename Func>
     void for_each(Func&& fn);
     
 private:

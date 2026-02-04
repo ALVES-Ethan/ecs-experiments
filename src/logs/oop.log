@@ -1,4 +1,4 @@
 Name                            FirstCallBudget (ms)    AverageCallBudget (ms)
-frame_time                      41.86ms					18.95ms
-update_entities                 4.13ms					4.05ms
-compute_collisions              13.89ms					14.27ms
+frame_time                      293.00ms        294.29ms
+update_entities                 58.84ms        58.67ms
+compute_collisions              232.85ms        234.61ms

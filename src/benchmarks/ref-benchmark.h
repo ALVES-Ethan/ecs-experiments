@@ -23,9 +23,8 @@ private:
     void compute_collisions();
     void handle_player_inputs();
 
-    void draw_player();
     void draw_entities();
 
-    entity m_player;
+    size_t m_player;
     std::vector<entity> m_entities;
 };

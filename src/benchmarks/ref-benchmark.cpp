@@ -23,8 +23,7 @@ int ref_benchmark::run() {
         ClearBackground(BLACK);
         BeginMode2D(cam);
         
-        draw_entities();
-        draw_player();
+        //draw_entities();
 
         EndMode2D();
         DrawFPS(10, 10);
@@ -37,7 +36,8 @@ int ref_benchmark::run() {
 
 void ref_benchmark::spawn_player() {
     PROFILE_FUNCTION();
-    m_player = { PLAYER_RADIUS, PLAYER_RADIUS, PLAYER_RADIUS, BLUE };
+    m_entities.push_back({ PLAYER_RADIUS, PLAYER_RADIUS, PLAYER_RADIUS, BLUE });
+    m_player = m_entities.size() - 1;
 }
 
 void ref_benchmark::spawn_entities() {
@@ -64,10 +64,13 @@ void ref_benchmark::spawn_entities() {
 
 void ref_benchmark::compute_collisions() {
     PROFILE_FUNCTION();
+
+    entity& player = m_entities[m_player];
+
     for (entity& e : m_entities) {
-        const float dx = e.x - m_player.x;
-        const float dy = e.y - m_player.y;
-        const float r = e.radius + m_player.radius;
+        const float dx = e.x - player.x;
+        const float dy = e.y - player.y;
+        const float r = e.radius + player.radius;
 
         e.color = (dx * dx + dy * dy < r * r) ? GREEN : RED;
     }
@@ -78,24 +81,24 @@ void ref_benchmark::handle_player_inputs() {
     const float dt = GetFrameTime();
     const float move = PLAYER_SPEED * dt;
 
-    if (IsKeyDown(KEY_W)) m_player.y -= move;
-    if (IsKeyDown(KEY_S)) m_player.y += move;
-    if (IsKeyDown(KEY_A)) m_player.x -= move;
-    if (IsKeyDown(KEY_D)) m_player.x += move;
-}
+    entity& player = m_entities[m_player];
 
-void ref_benchmark::draw_player() {
-    PROFILE_FUNCTION();
-    DrawCircleLines(m_player.x, m_player.y, m_player.radius, BLUE);
+    if (IsKeyDown(KEY_W)) player.y -= move;
+    if (IsKeyDown(KEY_S)) player.y += move;
+    if (IsKeyDown(KEY_A)) player.x -= move;
+    if (IsKeyDown(KEY_D)) player.x += move;
 }
 
 void ref_benchmark::draw_entities() {
     PROFILE_FUNCTION();
+
+    rlBegin(RL_LINES);
     for (const entity& e : m_entities) {
         if (e.x + e.radius < 0 || e.x - e.radius > WINDOW_WIDTH ||
             e.y + e.radius < 0 || e.y - e.radius > WINDOW_HEIGHT)
-            continue;
+            return;
 
-        DrawCircleLines(e.x, e.y, e.radius, e.color);
+        draw_circle_outline(e.x, e.y, e.radius, e.color);
     }
+    rlEnd();
 }

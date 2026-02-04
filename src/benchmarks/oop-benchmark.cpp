@@ -29,6 +29,7 @@ int oop_benchmark::run() {
         BeginMode2D(cam);
 
         update_entities();
+        //draw_entities();
 
         EndMode2D();
         DrawFPS(10, 10);
@@ -79,4 +80,13 @@ void oop_benchmark::update_entities() {
     float dt = GetFrameTime();
     for (auto e : m_entities)
         e->on_update(dt);
+}
+
+void oop_benchmark::draw_entities() {
+    PROFILE_FUNCTION();
+    rlBegin(RL_LINES);
+    for (oop_entity* e : m_entities) {
+        e->on_render();
+    }
+    rlEnd();
 }

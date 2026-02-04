@@ -56,16 +56,18 @@ T& ecs::get_component(entity _entity) {
     return store.dense[index];
 }
 
-template <typename ... Components, typename Func>
+template <typename First, typename... Others, typename Func>
 void ecs::for_each(Func&& fn) {
-    auto& store = get_store<std::tuple_element_t<0, std::tuple<Components...>>>(); // get the first component store in vaargs declaration order
-    
-    for (size_t i = 0; i < store.size; ++i) {
-        entity entity = store.entities[i];
+    auto& primary_store = get_store<First>();
 
-        // Check if entity has all required components
-        if ((has_component<Components>(entity) && ...)) {
-            fn(entity, get_component<Components>(entity)...);
+    for (size_t i = 0; i < primary_store.size; ++i) {
+        entity entity = primary_store.entities[i];
+
+        if ((has_component<Others>(entity) && ...)) {
+
+            fn(entity,
+                primary_store.dense[i],
+                get_component<Others>(entity)...);
         }
     }
 }

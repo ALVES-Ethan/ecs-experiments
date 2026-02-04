@@ -15,6 +15,7 @@ public:
     virtual void on_spawn() = 0;
     virtual void on_update(float dt) = 0;
     virtual void on_destroy() = 0;
+    virtual void on_render() = 0;
 
     void set_position(float _x, float _y) {
         x = _x;
@@ -33,8 +34,14 @@ protected:
 public:
     void on_spawn() override {}
     
-    void on_update(float dt) override {
-        //DrawCircleLines(x, y, radius, color);
+    void on_update(float dt) override {}
+
+    void on_render() override {
+        if (x + radius < 0 || x - radius > WINDOW_WIDTH ||
+            y + radius < 0 || y - radius > WINDOW_HEIGHT)
+            return;
+
+        draw_circle_outline(x, y, radius, color);
     }
 
     void on_destroy() override {}
@@ -100,6 +107,7 @@ private:
     void compute_collisions();
 
     void update_entities();
+    void draw_entities();
 
     std::vector<oop_entity*> m_entities;
     oop_player_entity* m_player = nullptr;
