@@ -34,7 +34,7 @@ public:
     void on_spawn() override {}
     
     void on_update(float dt) override {
-        DrawCircleLines(x, y, radius, color);
+        //DrawCircleLines(x, y, radius, color);
     }
 
     void on_destroy() override {}

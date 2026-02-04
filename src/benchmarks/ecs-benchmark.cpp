@@ -3,6 +3,24 @@
 #define ENABLE_PROFILER
 #include "../utils/profiler.h"
 
+// TEMP //
+#include "rlgl.h"
+
+constexpr int CIRCLE_SEGMENTS = 16; // tweak for speed vs quality
+
+void draw_circle_outline(float cx, float cy, float r, Color c) {
+    rlColor4ub(c.r, c.g, c.b, c.a);
+
+    for (int i = 0; i < CIRCLE_SEGMENTS; i++) {
+        float a0 = (2 * PI * i) / CIRCLE_SEGMENTS;
+        float a1 = (2 * PI * (i + 1)) / CIRCLE_SEGMENTS;
+
+        rlVertex2f(cx + cosf(a0) * r, cy + sinf(a0) * r);
+        rlVertex2f(cx + cosf(a1) * r, cy + sinf(a1) * r);
+    }
+}
+//////////
+
 ecs_benchmark::ecs_benchmark() : m_ecs() {}
 
 int ecs_benchmark::run() {
@@ -83,7 +101,7 @@ void ecs_benchmark::handle_player_inputs() {
     const float dt = GetFrameTime();
     const float move = PLAYER_SPEED * dt;
 
-    m_ecs.for_each<position, controller>([move](ecs::entity _entity, position& _pos, controller& _ctr) {
+    m_ecs.for_each<controller, position>([move](ecs::entity _entity, controller& _ctr, position& _pos) {
         if (IsKeyDown(KEY_W)) _pos.y -= move;
         if (IsKeyDown(KEY_S)) _pos.y += move;
         if (IsKeyDown(KEY_A)) _pos.x -= move;
@@ -94,11 +112,15 @@ void ecs_benchmark::handle_player_inputs() {
 void ecs_benchmark::draw_entities() {
     PROFILE_FUNCTION();
 
-    m_ecs.for_each<position, graphics>([](ecs::entity _entity, position& _pos, graphics& _grp) {
-        if (_pos.x + _grp.radius < 0 || _pos.x - _grp.radius > WINDOW_WIDTH ||
-            _pos.y + _grp.radius < 0 || _pos.y - _grp.radius > WINDOW_HEIGHT)
+    rlBegin(RL_LINES);
+
+    m_ecs.for_each<position, graphics>([](ecs::entity, position& pos, graphics& grp) {
+        if (pos.x + grp.radius < 0 || pos.x - grp.radius > WINDOW_WIDTH ||
+            pos.y + grp.radius < 0 || pos.y - grp.radius > WINDOW_HEIGHT)
             return;
 
-        DrawCircleLines(_pos.x, _pos.y, _grp.radius, _grp.color);
-    });
+        draw_circle_outline(pos.x, pos.y, grp.radius, grp.color);
+        });
+
+    rlEnd();
 }

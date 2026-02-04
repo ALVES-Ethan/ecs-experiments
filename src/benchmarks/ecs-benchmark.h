@@ -32,7 +32,6 @@ private:
 	void compute_collisions();
 	void handle_player_inputs();
 
-	//void draw_player();
 	void draw_entities();
 
 	ecs m_ecs;

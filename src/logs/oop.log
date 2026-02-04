@@ -1,6 +1,4 @@
 Name                            FirstCallBudget (ms)    AverageCallBudget (ms)
-frame_time                      61.37ms					12.21ms
-spawn_entities                  0.00ms					0.22ms
-spawn_player                    0.00ms					0.02ms
-update_entities                 11.80ms					11.73ms
-compute_collisions              0.04ms					0.05ms
+frame_time                      41.86ms					18.95ms
+update_entities                 4.13ms					4.05ms
+compute_collisions              13.89ms					14.27ms
